@@ -58,7 +58,8 @@
 		"dev:ts": "ts-node-dev ./src/index.ts | pino-pretty --colorize",
 		"watch:start": "tsc-watch --onSuccess \"node ./dist/index.js\"",
 		"format": "prettier --write \"src/**/*.ts\"",
-		"prepare": "husky install"
+		"prepare": "husky install",
+		"prisma": "dotenv -e .env prisma"
 	},
 	"prettier": "@sapphire/prettier-config",
 	"env": {
@@ -75,5 +76,8 @@
 			"prettier --write \"src/**/*.ts\"",
 			"git add ."
 		]
+	},
+	"prisma": {
+		"seed": "ts-node-dev prisma/seed.ts"
 	}
 }

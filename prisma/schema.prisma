@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL_MONGOD")
+}
+
+enum channel_type {
+  ALERT
+  DEFAULT
+  PRIVATE
+  BOT
+}
+
+model Guild {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  moderation Moderation[]
+  settings   Settings[]
+  channels   Channel[]
+}
+
+model Moderation {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  owner   String
+  admin   String
+  mod     String
+  default String
+  guild   Guild?  @relation(fields: [guildId], references: [id])
+  guildId String? @db.ObjectId
+}
+
+model Settings {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  prefix  String
+  guild   Guild?  @relation(fields: [guildId], references: [id])
+  guildId String? @db.ObjectId
+}
+
+model Channel {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  channelType ChannelType[]
+  guild       Guild?        @relation(fields: [guildId], references: [id])
+  guildId     String?       @db.ObjectId
+}
+
+model ChannelType {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  type      channel_type?
+  channel   Channel?      @relation(fields: [channelId], references: [id])
+  channelId String?       @db.ObjectId
+}
