@@ -1,8 +1,11 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Listener, type Store } from '@sapphire/framework';
 import { blue, gray, green, magenta, magentaBright, white, yellow } from 'colorette';
+import { AppConfig } from '../config';
 
-const dev = process.env.NODE_ENV !== 'production';
+const config = AppConfig.getInstance();
+
+const dev = config.NODE_ENV !== 'production';
 
 @ApplyOptions<Listener.Options>({ once: true })
 export class UserEvent extends Listener {
@@ -33,6 +36,8 @@ ${line02} ${pad}[${success}] Gateway
 ${line03}${dev ? ` ${pad}${blc('<')}${llc('/')}${blc('>')} ${llc('DEVELOPMENT MODE')}` : ''}
 		`.trim()
 		);
+
+		this.printLoginInformation();
 	}
 
 	private printStoreDebugInformation() {
@@ -46,5 +51,15 @@ ${line03}${dev ? ` ${pad}${blc('<')}${llc('/')}${blc('>')} ${llc('DEVELOPMENT MO
 
 	private styleStore(store: Store<any>, last: boolean) {
 		return gray(`${last ? '└─' : '├─'} Loaded ${this.style(store.size.toString().padEnd(3, ' '))} ${store.name}.`);
+	}
+
+	private printLoginInformation() {
+		try {
+			const { client, logger } = this.container;
+			const { username, id } = client.user!;
+			logger.info(`Successfully logged in as ${username} (${id})`);
+		} catch (error) {
+			console.error(error);
+		}
 	}
 }

@@ -1,5 +1,5 @@
 import { AllFlowsPrecondition } from '@sapphire/framework';
-import { AppConfig } from 'config';
+import { AppConfig } from '../config';
 import type { CommandInteraction, ContextMenuCommandInteraction, Message, Snowflake } from 'discord.js';
 const config = AppConfig.getInstance();
 
