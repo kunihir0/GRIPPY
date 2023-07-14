@@ -9,7 +9,10 @@
 			"#lib/*": [
 				"./lib/*"
 			]
-		}
+		},
+		"verbatimModuleSyntax": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true
 	},
 	"include": [
 		"src"

@@ -3,61 +3,67 @@ import { container } from '@sapphire/framework';
 import { send } from '@sapphire/plugin-editable-commands';
 import { cyan } from 'colorette';
 import { EmbedBuilder, type APIUser, type Guild, type Message, type User } from 'discord.js';
-import { RandomLoadingMessage } from './constants';
+import { Constants } from './constants';
 
-/**
- * Picks a random item from an array
- * @param array The array to pick a random item from
- * @example
- * const randomEntry = pickRandom([1, 2, 3, 4]) // 1
- */
-export function pickRandom<T>(array: readonly T[]): T {
-	const { length } = array;
-	return array[Math.floor(Math.random() * length)];
-}
-
-/**
- * Sends a loading message to the current channel
- * @param message The message data for which to send the loading message
- */
-export function sendLoadingMessage(message: Message): Promise<typeof message> {
-	return send(message, { embeds: [new EmbedBuilder().setDescription(pickRandom(RandomLoadingMessage)).setColor('#FF0000')] });
-}
-
-export function logSuccessCommand(payload: ContextMenuCommandSuccessPayload | ChatInputCommandSuccessPayload | MessageCommandSuccessPayload): void {
-	let successLoggerData: ReturnType<typeof getSuccessLoggerData>;
-
-	if ('interaction' in payload) {
-		successLoggerData = getSuccessLoggerData(payload.interaction.guild, payload.interaction.user, payload.command);
-	} else {
-		successLoggerData = getSuccessLoggerData(payload.message.guild, payload.message.author, payload.command);
+export class Utils {
+	/**
+	 * Picks a random item from an array
+	 * @param array The array to pick a random item from
+	 * @example
+	 * const randomEntry = Utils.pickRandom([1, 2, 3, 4]) // 1
+	 */
+	public static pickRandom<T>(array: readonly T[]): T {
+		const { length } = array;
+		return array[Math.floor(Math.random() * length)];
 	}
 
-	container.logger.debug(`${successLoggerData.shard} - ${successLoggerData.commandName} ${successLoggerData.author} ${successLoggerData.sentAt}`);
-}
+	/**
+	 * Sends a loading message to the current channel
+	 * @param message The message data for which to send the loading message
+	 */
+	public static sendLoadingMessage(message: Message): Promise<typeof message> {
+		return send(message, {
+			embeds: [new EmbedBuilder().setDescription(Utils.pickRandom(Constants.RandomLoadingMessage)).setColor('#FF0000')]
+		});
+	}
 
-export function getSuccessLoggerData(guild: Guild | null, user: User, command: Command) {
-	const shard = getShardInfo(guild?.shardId ?? 0);
-	const commandName = getCommandInfo(command);
-	const author = getAuthorInfo(user);
-	const sentAt = getGuildInfo(guild);
+	public static logSuccessCommand(payload: ContextMenuCommandSuccessPayload | ChatInputCommandSuccessPayload | MessageCommandSuccessPayload): void {
+		let successLoggerData: ReturnType<typeof Utils.getSuccessLoggerData>;
 
-	return { shard, commandName, author, sentAt };
-}
+		if ('interaction' in payload) {
+			successLoggerData = Utils.getSuccessLoggerData(payload.interaction.guild, payload.interaction.user, payload.command);
+		} else {
+			successLoggerData = Utils.getSuccessLoggerData(payload.message.guild, payload.message.author, payload.command);
+		}
 
-function getShardInfo(id: number) {
-	return `[${cyan(id.toString())}]`;
-}
+		container.logger.debug(
+			`${successLoggerData.shard} - ${successLoggerData.commandName} ${successLoggerData.author} ${successLoggerData.sentAt}`
+		);
+	}
 
-function getCommandInfo(command: Command) {
-	return cyan(command.name);
-}
+	public static getSuccessLoggerData(guild: Guild | null, user: User, command: Command) {
+		const shard = Utils.getShardInfo(guild?.shardId ?? 0);
+		const commandName = Utils.getCommandInfo(command);
+		const author = Utils.getAuthorInfo(user);
+		const sentAt = Utils.getGuildInfo(guild);
 
-function getAuthorInfo(author: User | APIUser) {
-	return `${author.username}[${cyan(author.id)}]`;
-}
+		return { shard, commandName, author, sentAt };
+	}
 
-function getGuildInfo(guild: Guild | null) {
-	if (guild === null) return 'Direct Messages';
-	return `${guild.name}[${cyan(guild.id)}]`;
+	private static getShardInfo(id: number) {
+		return `[${cyan(id.toString())}]`;
+	}
+
+	private static getCommandInfo(command: Command) {
+		return cyan(command.name);
+	}
+
+	private static getAuthorInfo(author: User | APIUser) {
+		return `${author.username}[${cyan(author.id)}]`;
+	}
+
+	private static getGuildInfo(guild: Guild | null) {
+		if (guild === null) return 'Direct Messages';
+		return `${guild.name}[${cyan(guild.id)}]`;
+	}
 }

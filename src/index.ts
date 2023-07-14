@@ -1,41 +1,49 @@
 import './lib/setup';
 import { LogLevel, SapphireClient } from '@sapphire/framework';
 import { GatewayIntentBits, Partials } from 'discord.js';
+import { AppConfig } from './config';
 
-const client = new SapphireClient({
-	defaultPrefix: '!',
-	regexPrefix: /^(hey +)?bot[,! ]/i,
-	caseInsensitiveCommands: true,
-	logger: {
-		level: LogLevel.Debug
-	},
-	shards: 'auto',
-	intents: [
-		GatewayIntentBits.DirectMessageReactions,
-		GatewayIntentBits.DirectMessages,
-		GatewayIntentBits.GuildModeration,
-		GatewayIntentBits.GuildEmojisAndStickers,
-		GatewayIntentBits.GuildVoiceStates,
-		GatewayIntentBits.GuildMessageReactions,
+const config = AppConfig.getInstance();
 
-		GatewayIntentBits.GuildMessages,
-		GatewayIntentBits.Guilds,
-		GatewayIntentBits.MessageContent
-	],
-	partials: [Partials.Channel],
-	loadMessageCommandListeners: true
-});
+class MyBot extends SapphireClient {
+	constructor() {
+		super({
+			defaultPrefix: '!',
+			regexPrefix: /^(hey +)?bot[,! ]/i,
+			caseInsensitiveCommands: true,
+			logger: {
+				level: LogLevel.Debug
+			},
+			shards: 'auto',
+			intents: [
+				GatewayIntentBits.DirectMessageReactions,
+				GatewayIntentBits.DirectMessages,
+				GatewayIntentBits.GuildModeration,
+				GatewayIntentBits.GuildEmojisAndStickers,
+				GatewayIntentBits.GuildVoiceStates,
+				GatewayIntentBits.GuildMessageReactions,
 
-const main = async () => {
-	try {
-		client.logger.info('Logging in');
-		await client.login();
-		client.logger.info('logged in');
-	} catch (error) {
-		client.logger.fatal(error);
-		client.destroy();
-		process.exit(1);
+				GatewayIntentBits.GuildMessages,
+				GatewayIntentBits.Guilds,
+				GatewayIntentBits.MessageContent
+			],
+			partials: [Partials.Channel],
+			loadMessageCommandListeners: true
+		});
 	}
-};
 
-main();
+	async start() {
+		try {
+			this.logger.info('Logging in');
+			await this.login(config.DISCORD_TOKEN);
+			this.logger.info('logged in');
+		} catch (error) {
+			this.logger.fatal(error);
+			this.destroy();
+			process.exit(1);
+		}
+	}
+}
+
+const client = new MyBot();
+client.start();
